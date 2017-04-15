@@ -15,6 +15,12 @@ Created on Thu Apr 13 23:38:45 2017
 import json
 from pprint import pprint
 
+import os
+
+default_path='C:\\Users\\tham\\Documents\\python\\stockTrading\\stockTrading\\'
+os.chdir(default_path)
+
+
 with open('dataMar.txt') as data_file:    
     data = json.load(data_file)
 
@@ -42,7 +48,7 @@ print (len(data["prices"]))
 average = 0
 
 sumStocks = 0
-
+totalTrades = 0;
 for i in range (0, len(data["prices"])):
     #print (data["prices"][i]["snapshotTime"])
     #print (data["prices"][i]["closePrice"]["bid"])
@@ -68,18 +74,31 @@ for i in range (0, len(data["prices"])):
     #insert your algorithm here
     buyAmount=buyLots * bidPrice
     
+    n = bidPrice
+    fstr = repr(n)
+    signif_digits, fract_digits = fstr.split('.')
+    # >  ['179', '123']
+    fract_lastdigit = int(fract_digits[-1])
+    # >  9
+    pic = float(fract_lastdigit)
+    pic = pic / 100000
+    tradeFee = pic * buyLots
+    
+    print ('Pic {0}, Trade Fee: {1}'.format(pic, tradeFee))
     if buyAmount > 0:
-        if buyAmount < totalMoney:
+        if (buyAmount+tradeFee) < totalMoney:
             totalLots=totalLots+buyLots
             totalAssets=totalLots*bidPrice
         #end
-            totalMoney=totalMoney-buyAmount
+            totalMoney=totalMoney-buyAmount-tradeFee
+            totalTrades = totalTrades + 1
     else:
-        if abs(buyLots)<totalLots:
+        if (abs(buyLots)<totalLots) and (tradeFee<totalMoney):
             totalLots=totalLots+buyLots
             totalAssets=totalLots*bidPrice
         #end
-            totalMoney=totalMoney-buyAmount
+            totalMoney=totalMoney-buyAmount-tradeFee
+            totalTrades = totalTrades + 1
     
     
 print('Total Money {0}'.format(totalMoney))
@@ -89,3 +108,5 @@ print('Total Assets {0}'.format(totalAssets))
 total = totalMoney + totalAssets
 
 print('Total {0}'.format(total))
+
+print ('Total Trades {0}'.format(totalTrades))
