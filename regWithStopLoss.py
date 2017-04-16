@@ -15,8 +15,10 @@ Created on Thu Apr 13 23:38:45 2017
 import json
 
 import numpy as np
-from pprint import pprint
-
+#from pprint import pprint
+#from ggplot import *
+#import matplotlib.pyplot as plt
+import pandas as pd
 import os
 def basic_linear_regression(x, y):
     # Basic computations to save a little time.
@@ -83,6 +85,13 @@ yVals = []
 firstBuy=False
 
 timeFirstBuy=""
+
+isBuy = False
+buySellPrice = data["prices"][0]["closePrice"]["bid"]
+
+totalMonVec = []
+
+xVec=[]
 for i in range (0, len(data["prices"])):
     #print (data["prices"][i]["snapshotTime"])
     #print (data["prices"][i]["closePrice"]["bid"])
@@ -116,17 +125,23 @@ for i in range (0, len(data["prices"])):
         #print('Regression a {0} b {1} Time {2}'.format(regression[0], regression[1], data["prices"][i]["snapshotTime"]))
         valueInterest = regression[0]*i + regression[1]
         #print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
-    if bidPrice > (valueInterest+ 2*np.std(yCut)):
-        buyLots=-300#negative for sell
+    if bidPrice > (valueInterest+ 1.0*np.std(yCut)):
+        buyLots=-10000#negative for sell
         print ('Intend Sell')
         print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
     else:
-        if (valueInterest-2*np.std(yCut)) > bidPrice:
-            buyLots=300
+        if (valueInterest-1.0*np.std(yCut)) > bidPrice:
+            buyLots=10000
             print('Intend buy')
             print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
             
         
+    if bought==False:
+        if bidPrice > (valueInterest+ 10*np.std(yCut)):
+            buyLots=10000
+    else:
+        if bidPrice < (valueInterest- 10*np.std(yCut)):
+            buyLots=-10000
     
     
     #insert your algorithm here
@@ -157,10 +172,13 @@ for i in range (0, len(data["prices"])):
             bought = True
             timeFirstBuy =  data["prices"][i]["snapshotTime"]
             print ('valueInterest {0} Bid Price {1}'.format(valueInterest, bidPrice))
+           # isBuy=True
+            buySellPrice=bidPrice
     else:
         #if buyAmount<0 and bought == True:
         if buyAmount<0:
-            if (abs(buyLots)<=totalLots) and (tradeFee<=totalMoney):
+            #if (abs(buyLots)<=totalLots) and (tradeFee<=totalMoney):
+            if (tradeFee<=totalMoney):
                 totalLots=totalLots+buyLots
                 totalAssets=totalLots*bidPrice
             #end
@@ -169,12 +187,21 @@ for i in range (0, len(data["prices"])):
                 print ('Sell {0} Time {1}'.format (abs(buyAmount), data["prices"][i]["snapshotTime"]))
                 print ('valueInterest {0} Bid Price {1}'.format(valueInterest, bidPrice))
                 bought = False
+             #   isBuy=False
+                buySellPrice=bidPrice
             else:
                 print ('Cannot sell as sell conditions not met')
+    totalCash = totalMoney + totalAssets
+    totalMonVec.append(totalCash)
+    xVec.append(i)
     xVals.append(i)
     yVals.append(bidPrice)
     lastPrice = bidPrice
+ 
     
+df = pd.DataFrame(totalMonVec)
+#df = df.cumsum() 
+df.plot()
 totalMoney = lastPrice * totalLots + totalMoney
 totalLots = 0
 totalAssets=totalLots*lastPrice
