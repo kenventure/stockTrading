@@ -51,6 +51,9 @@ sumStocks = 0
 totalTrades = 0;
 
 lastPrice = 0;
+
+bought = False
+
 for i in range (0, len(data["prices"])):
     #print (data["prices"][i]["snapshotTime"])
     #print (data["prices"][i]["closePrice"]["bid"])
@@ -65,11 +68,11 @@ for i in range (0, len(data["prices"])):
     buyAmount=0.00
     buyLots=0
     
-    if (bidPrice - average) > 0.013:
-        buyLots=-30#negative for sell
+    if (bidPrice - average) > 0.000001:
+        buyLots=-300#negative for sell
     else:
-        if (average - bidPrice) < 0.05:
-            buyLots=30
+        if (average - bidPrice) > 0.000001:
+            buyLots=300
         
     
         
@@ -86,8 +89,9 @@ for i in range (0, len(data["prices"])):
     pic = pic / 100000
     tradeFee = pic * buyLots
     
+    #print ('Average {0} Bid Price {1}'.format(average, bidPrice))
     #print ('Pic {0}, Trade Fee: {1}'.format(pic, tradeFee))
-    if buyAmount > 0:
+    if buyAmount > 0 and bought == False:
         if (buyAmount+tradeFee) < totalMoney:
             totalLots=totalLots+buyLots
             totalAssets=totalLots*bidPrice
@@ -95,14 +99,19 @@ for i in range (0, len(data["prices"])):
             totalMoney=totalMoney-buyAmount-tradeFee
             totalTrades = totalTrades + 1
             print ('Buy {0} Time {1}'.format(buyAmount, data["prices"][i]["snapshotTime"]))
+            bought = True
+            print ('Average {0} Bid Price {1}'.format(average, bidPrice))
     else:
-        if (abs(buyLots)<totalLots) and (tradeFee<totalMoney):
-            totalLots=totalLots+buyLots
-            totalAssets=totalLots*bidPrice
-        #end
-            totalMoney=totalMoney-buyAmount-tradeFee
-            totalTrades = totalTrades + 1
-            print ('Sell {0} Time {1}'.format (abs(buyAmount), data["prices"][i]["snapshotTime"]))
+        if buyAmount<0 and bought == True:
+            if (abs(buyLots)<totalLots) and (tradeFee<totalMoney):
+                totalLots=totalLots+buyLots
+                totalAssets=totalLots*bidPrice
+            #end
+                totalMoney=totalMoney-buyAmount-tradeFee
+                totalTrades = totalTrades + 1
+                print ('Sell {0} Time {1}'.format (abs(buyAmount), data["prices"][i]["snapshotTime"]))
+                print ('Average {0} Bid Price {1}'.format(average, bidPrice))
+                bought = False
     lastPrice = bidPrice
     
 totalMoney = lastPrice * totalLots + totalMoney
