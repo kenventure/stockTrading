@@ -174,6 +174,7 @@ for i in range (0, len(data["prices"])):
     #print ('Pic {0}, Trade Fee: {1}'.format(pic, tradeFee))
     if isBuy==True:
     #if buyAmount > 0:
+        amtVec.append(0)
         if  bought == False:
             boughtLots=invest/bidPrice
             tradeFee=pic * boughtLots
@@ -205,6 +206,9 @@ for i in range (0, len(data["prices"])):
                 sellVec.append(bidPrice)
             else:
                 print ('Cannot sell as sell conditions not met')
+                amtVec.append(0)
+        else:
+            amtVec.append(0)
     #totalCash = totalMoney + totalAssets
     totalMonVec.append(totalEq)
     xVec.append(i)
