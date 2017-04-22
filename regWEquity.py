@@ -46,7 +46,9 @@ default_path='C:\\Users\\tham\\Documents\\python\\stockTrading\\stockTrading\\'
 os.chdir(default_path)
 
 
-with open('dataMar.txt') as data_file:    
+#with open('dataMar.txt') as data_file:    
+#with open('20Feb17.txt') as data_file:    
+with open('1Mar14Mar.txt') as data_file:    
     data = json.load(data_file)
 
 #with open ('20Mar25Mar.txt') as data_file:
@@ -98,6 +100,8 @@ boughtLots=0
 amtVec=[]
 buyVec=[]
 sellVec=[]
+entryPrice=0
+stopLossPrice=0
 for i in range (0, len(data["prices"])):
     #print (data["prices"][i]["snapshotTime"])
     #print (data["prices"][i]["closePrice"]["bid"])
@@ -122,17 +126,17 @@ for i in range (0, len(data["prices"])):
     
     valueInterest=bidPrice
     
-    if len(xVals)>100:  
+    if len(xVals)>50:  
         xVals.pop(0)
         yVals.pop(0)
         
-        xCut = xVals[:99]
-        yCut = yVals[:99]
+        xCut = xVals[:49]
+        yCut = yVals[:49]
         regression = np.polyfit(xCut, yCut, 1)
         #print('Regression a {0} b {1} Time {2}'.format(regression[0], regression[1], data["prices"][i]["snapshotTime"]))
         valueInterest = regression[0]*i + regression[1]
         #print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
-        if bidPrice > (valueInterest+ 1.0*np.std(yCut)) and bought==True:
+        if bidPrice > (valueInterest+ 10.0*np.std(yCut)) and bought==True:
             #buyLots=-10000#negative for sell
             
             print ('Intend Sell')
@@ -146,15 +150,15 @@ for i in range (0, len(data["prices"])):
                 isBuy=True
             
         
-        if bought==False:
-            if bidPrice > (valueInterest+ 10*np.std(yCut)):
-                #buyLots=10000
-                isBuy = True
-        else:
-            if bidPrice < (valueInterest- 10*np.std(yCut)):
-                #buyLots=-10000
-                isSell = True
-    
+#        if bought==False:
+#            if bidPrice > (valueInterest+ 10*np.std(yCut)):
+#                #buyLots=10000
+#                isBuy = True
+#        else:
+#            if bidPrice < (valueInterest- 10*np.std(yCut)):
+#                #buyLots=-10000
+#                isSell = True
+        
     
     #insert your algorithm here
     buyAmount=buyLots * bidPrice
@@ -170,7 +174,11 @@ for i in range (0, len(data["prices"])):
     pic = pic / 100000
     #tradeFee = pic * buyLots
     
-    #print ('Average {0} Bid Price {1}'.format(average, bidPrice))
+    #print ('Average {0} 
+    print('Bid Price {1}'.format(average, bidPrice))
+    
+    if bought==True and bidPrice < stopLossPrice: # stop loss
+        isSell=True
     #print ('Pic {0}, Trade Fee: {1}'.format(pic, tradeFee))
     if isBuy==True:
     #if buyAmount > 0:
@@ -183,6 +191,8 @@ for i in range (0, len(data["prices"])):
                 totalTrades = totalTrades + 1
                 print ('Buy {0} Time {1}'.format(buyAmount, data["prices"][i]["snapshotTime"]))
                 bought = True
+                entryPrice=bidPrice
+                stopLossPrice=entryPrice-10*pic
                 timeFirstBuy =  data["prices"][i]["snapshotTime"]
                 print ('valueInterest {0} Bid Price {1}'.format(valueInterest, bidPrice))
                 buyVec.append(bidPrice)
