@@ -64,8 +64,8 @@ print (data["prices"][1]["snapshotTime"])
 print (len(data["prices"]))
 
 
-
-totalMoney = 10000.00 #in dollars
+invest=10000
+totalMoney = 11000.00 #in dollars
 totalAssets = 0
 totalLots=0
 print (len(data["prices"]))
@@ -94,7 +94,10 @@ totalMonVec = []
 xVec=[]
 
 totalEq = totalMoney
-
+boughtLots=0
+amtVec=[]
+buyVec=[]
+sellVec=[]
 for i in range (0, len(data["prices"])):
     #print (data["prices"][i]["snapshotTime"])
     #print (data["prices"][i]["closePrice"]["bid"])
@@ -129,28 +132,28 @@ for i in range (0, len(data["prices"])):
         #print('Regression a {0} b {1} Time {2}'.format(regression[0], regression[1], data["prices"][i]["snapshotTime"]))
         valueInterest = regression[0]*i + regression[1]
         #print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
-    if bidPrice > (valueInterest+ 1.0*np.std(yCut)):
-        #buyLots=-10000#negative for sell
-        
-        print ('Intend Sell')
-        print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
-        isSell = True
-    else:
-        if (valueInterest-1.0*np.std(yCut)) > bidPrice:
-            #buyLots=10000
-            print('Intend buy')
+        if bidPrice > (valueInterest+ 1.0*np.std(yCut)) and bought==True:
+            #buyLots=-10000#negative for sell
+            
+            print ('Intend Sell')
             print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
-            isBuy=True
+            isSell = True
+        else:
+            if (valueInterest-1.0*np.std(yCut)) > bidPrice and bought==False:
+                #buyLots=10000
+                print('Intend buy')
+                print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
+                isBuy=True
             
         
-    if bought==False:
-        if bidPrice > (valueInterest+ 10*np.std(yCut)):
-            #buyLots=10000
-            isBuy = True
-    else:
-        if bidPrice < (valueInterest- 10*np.std(yCut)):
-            #buyLots=-10000
-            isSell = True
+        if bought==False:
+            if bidPrice > (valueInterest+ 10*np.std(yCut)):
+                #buyLots=10000
+                isBuy = True
+        else:
+            if bidPrice < (valueInterest- 10*np.std(yCut)):
+                #buyLots=-10000
+                isSell = True
     
     
     #insert your algorithm here
@@ -165,43 +168,45 @@ for i in range (0, len(data["prices"])):
     # >  9
     pic = float(fract_lastdigit)
     pic = pic / 100000
-    tradeFee = pic * buyLots
+    #tradeFee = pic * buyLots
     
     #print ('Average {0} Bid Price {1}'.format(average, bidPrice))
     #print ('Pic {0}, Trade Fee: {1}'.format(pic, tradeFee))
     if isBuy==True:
     #if buyAmount > 0:
-        if (buyAmount+tradeFee) <= totalMoney and bought == False:
-            totalLots=totalLots+buyLots
-            totalAssets=totalLots*bidPrice
-        #end
-            totalMoney=totalMoney-buyAmount-tradeFee
-            totalTrades = totalTrades + 1
-            print ('Buy {0} Time {1}'.format(buyAmount, data["prices"][i]["snapshotTime"]))
-            bought = True
-            timeFirstBuy =  data["prices"][i]["snapshotTime"]
-            print ('valueInterest {0} Bid Price {1}'.format(valueInterest, bidPrice))
+        if  bought == False:
+            boughtLots=invest/bidPrice
+            tradeFee=pic * boughtLots
+            if (tradeFee<=(totalEq-invest)):
+                totalEq=totalEq-tradeFee
+                totalTrades = totalTrades + 1
+                print ('Buy {0} Time {1}'.format(buyAmount, data["prices"][i]["snapshotTime"]))
+                bought = True
+                timeFirstBuy =  data["prices"][i]["snapshotTime"]
+                print ('valueInterest {0} Bid Price {1}'.format(valueInterest, bidPrice))
+                buyVec.append(bidPrice)
            # isBuy=True
             buySellPrice=bidPrice
     else:
         #if buyAmount<0 and bought == True:
         if isSell == True:
             #if (abs(buyLots)<=totalLots) and (tradeFee<=totalMoney):
-            if (tradeFee<=totalMoney):
-                totalLots=totalLots+buyLots
-                totalAssets=totalLots*bidPrice
-            #end
-                totalMoney=totalMoney-buyAmount-tradeFee
+            if (tradeFee<=(totalEq-invest)):
+                tradeFee=pic * boughtLots
+                amount=bidPrice*boughtLots
+                totalEq=totalEq-invest+amount-tradeFee
                 totalTrades = totalTrades + 1
                 print ('Sell {0} Time {1}'.format (abs(buyAmount), data["prices"][i]["snapshotTime"]))
                 print ('valueInterest {0} Bid Price {1}'.format(valueInterest, bidPrice))
                 bought = False
              #   isBuy=False
+                amtVec.append(amount)
                 buySellPrice=bidPrice
+                sellVec.append(bidPrice)
             else:
                 print ('Cannot sell as sell conditions not met')
-    totalCash = totalMoney + totalAssets
-    totalMonVec.append(totalCash)
+    #totalCash = totalMoney + totalAssets
+    totalMonVec.append(totalEq)
     xVec.append(i)
     xVals.append(i)
     yVals.append(bidPrice)
@@ -211,15 +216,18 @@ for i in range (0, len(data["prices"])):
 df = pd.DataFrame(totalMonVec)
 #df = df.cumsum() 
 df.plot()
-totalMoney = lastPrice * totalLots + totalMoney
-totalLots = 0
-totalAssets=totalLots*lastPrice
-print('Total Money {0}'.format(totalMoney))
 
-print('Total Assets {0}'.format(totalAssets))
+df2=pd.DataFrame(amtVec)
+df2.plot()
 
-total = totalMoney + totalAssets
-print ('Time first buy {0}'.format(timeFirstBuy))
-print('Total {0}'.format(total))
+df3=pd.DataFrame(buyVec)
 
-print ('Total Trades {0}'.format(totalTrades))
+df3.plot()
+
+df4=pd.DataFrame(sellVec)
+df4.plot()
+print('Total Equity {0}'.format(totalEq))
+
+print ('Total Trades {0}, Buy {1} Sell {2}'.format(totalTrades, len(buyVec), len(sellVec)))
+
+print ('Mean buy{0}, Mean sell {1}'.format(np.mean(buyVec), np.mean(sellVec)))
