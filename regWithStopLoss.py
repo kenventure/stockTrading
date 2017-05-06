@@ -17,7 +17,7 @@ import json
 import numpy as np
 #from pprint import pprint
 #from ggplot import *
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 import os
 def basic_linear_regression(x, y):
@@ -42,11 +42,11 @@ def basic_linear_regression(x, y):
     return a, b
 
 
-default_path='C:\\Users\\tham\\Documents\\python\\stockTrading\\stockTrading\\'
+default_path='C:\\Users\\ktcm2\\Documents\\python\\stockTrading\\'
 os.chdir(default_path)
 
 
-with open('dataMar.txt') as data_file:    
+with open('1Mar14Mar.txt') as data_file:    
     data = json.load(data_file)
 
 #with open ('20Mar25Mar.txt') as data_file:
@@ -125,23 +125,23 @@ for i in range (0, len(data["prices"])):
         #print('Regression a {0} b {1} Time {2}'.format(regression[0], regression[1], data["prices"][i]["snapshotTime"]))
         valueInterest = regression[0]*i + regression[1]
         #print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
-    if bidPrice > (valueInterest+ 1.0*np.std(yCut)):
-        buyLots=-10000#negative for sell
-        print ('Intend Sell')
-        print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
-    else:
-        if (valueInterest-1.0*np.std(yCut)) > bidPrice:
-            buyLots=10000
-            print('Intend buy')
+        if bidPrice > (valueInterest+ 1.0*np.std(yCut)):
+            buyLots=-10000#negative for sell
+            print ('Intend Sell')
             print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
+        else:
+            if (valueInterest-1.0*np.std(yCut)) > bidPrice:
+                buyLots=10000
+                print('Intend buy')
+                print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
             
         
-    if bought==False:
-        if bidPrice > (valueInterest+ 10*np.std(yCut)):
-            buyLots=10000
-    else:
-        if bidPrice < (valueInterest- 10*np.std(yCut)):
-            buyLots=-10000
+        if bought==False:
+            if bidPrice > (valueInterest+ 10*np.std(yCut)):
+                buyLots=10000
+        else:
+            if bidPrice < (valueInterest- 10*np.std(yCut)):
+                buyLots=-10000
     
     
     #insert your algorithm here
@@ -200,8 +200,11 @@ for i in range (0, len(data["prices"])):
  
     
 df = pd.DataFrame(totalMonVec)
-#df = df.cumsum() 
+#df = df.cumsum()
+#from IPython.core.display import display
+#display(df.plot())
 df.plot()
+plt.show()
 totalMoney = lastPrice * totalLots + totalMoney
 totalLots = 0
 totalAssets=totalLots*lastPrice
