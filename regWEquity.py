@@ -139,14 +139,14 @@ for i in range (0, len(data["prices"])):
         if bidPrice > (valueInterest+ 10.0*np.std(yCut)) and bought==True:
             #buyLots=-10000#negative for sell
             
-            print ('Intend Sell')
-            print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
+            #print ('Intend Sell')
+            #print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
             isSell = True
         else:
             if (valueInterest-1.0*np.std(yCut)) > bidPrice and bought==False:
                 #buyLots=10000
-                print('Intend buy')
-                print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
+                #print('Intend buy')
+                #print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
                 isBuy=True
             
         
@@ -162,7 +162,7 @@ for i in range (0, len(data["prices"])):
     
     #insert your algorithm here
     buyAmount=buyLots * bidPrice
-    print ('Buy amount {0} TOtal lots {1}'.format(buyAmount, totalLots))    
+   # print ('Buy amount {0} TOtal lots {1}'.format(buyAmount, totalLots))    
     
     n = bidPrice
     fstr = repr(n)
@@ -175,7 +175,7 @@ for i in range (0, len(data["prices"])):
     #tradeFee = pic * buyLots
     
     #print ('Average {0} 
-    print('Bid Price {1}'.format(average, bidPrice))
+   # print('Bid Price {1}'.format(average, bidPrice))
     
     if bought==True and bidPrice < stopLossPrice: # stop loss
         isSell=True
@@ -189,7 +189,7 @@ for i in range (0, len(data["prices"])):
             if (tradeFee<=(totalEq-invest)):
                 totalEq=totalEq-tradeFee
                 totalTrades = totalTrades + 1
-                print ('Buy {0} Time {1}'.format(buyAmount, data["prices"][i]["snapshotTime"]))
+                print ('Buy  Time {0}'.format(data["prices"][i]["snapshotTime"]))
                 bought = True
                 entryPrice=bidPrice
                 stopLossPrice=entryPrice-10*pic
@@ -207,7 +207,7 @@ for i in range (0, len(data["prices"])):
                 amount=bidPrice*boughtLots
                 totalEq=totalEq-invest+amount-tradeFee
                 totalTrades = totalTrades + 1
-                print ('Sell {0} Time {1}'.format (abs(buyAmount), data["prices"][i]["snapshotTime"]))
+                print ('Sell {0} Time {1}'.format (abs(amount), data["prices"][i]["snapshotTime"]))
                 print ('valueInterest {0} Bid Price {1}'.format(valueInterest, bidPrice))
                 bought = False
              #   isBuy=False
@@ -215,7 +215,7 @@ for i in range (0, len(data["prices"])):
                 buySellPrice=bidPrice
                 sellVec.append(bidPrice)
             else:
-                print ('Cannot sell as sell conditions not met')
+               # print ('Cannot sell as sell conditions not met')
                 amtVec.append(0)
         else:
             amtVec.append(0)
