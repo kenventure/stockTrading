@@ -108,11 +108,12 @@ sellVec=[]
 entryPrice=0
 stopLossPrice=0
 
-buyNum=1
-sellNum=10
+buyNum=2
+sellNum=15
 stopLossVal=10
 numSell=0
 numStopLoss=0
+sellPrice=0.0
 for i in range (0, 150000):
 
     
@@ -127,18 +128,20 @@ for i in range (0, 150000):
     buyLots=0
     
     valueInterest=bidPrice
+
+
     
-    if len(xVals)>100:  
+    if len(xVals)>1000:  
         xVals.pop(0)
         yVals.pop(0)
         
-        xCut = xVals[:99]
-        yCut = yVals[:99]
+        xCut = xVals[:999]
+        yCut = yVals[:999]
         regression = np.polyfit(xCut, yCut, 1)
         #print('Regression a {0} b {1} Time {2}'.format(regression[0], regression[1], data["prices"][i]["snapshotTime"]))
         valueInterest = regression[0]*i + regression[1]
         #print ('Value Interest {0} Bid Price {1}'.format(valueInterest, bidPrice))
-        if bidPrice > (valueInterest+ sellNum*np.std(yCut)) and bought==True:
+        if bidPrice > (sellPrice) and bought==True:
             #buyLots=-10000#negative for sell
             
             #print ('Intend Sell')
@@ -166,15 +169,15 @@ for i in range (0, 150000):
     #insert your algorithm here
     buyAmount=buyLots * bidPrice
    # print ('Buy amount {0} TOtal lots {1}'.format(buyAmount, totalLots))    
-    
-    n = bidPrice
-    fstr = repr(n)
-    signif_digits, fract_digits = fstr.split('.')
+   # n = bidPrice
+   # fstr = repr(n)
+   # signif_digits, fract_digits = fstr.split('.')
     # >  ['179', '123']
-    fract_lastdigit = int(fract_digits[-1])
+   # fract_lastdigit = int(fract_digits[-1])
     # >  9
-    pic = float(fract_lastdigit)
-    pic = pic / 100000
+   # pic = float(fract_lastdigit)
+   # pic = pic / 100000    
+    pic=0.0001
     #tradeFee = pic * buyLots
     
     #print ('Average {0} 
@@ -182,6 +185,7 @@ for i in range (0, 150000):
     
     if bought==True and bidPrice < stopLossPrice: # stop loss
         isSell=True
+        print ('Stop loss')
         numStopLoss=numStopLoss+1
     #print ('Pic {0}, Trade Fee: {1}'.format(pic, tradeFee))
     if isBuy==True:
@@ -190,13 +194,14 @@ for i in range (0, 150000):
         if  bought == False:
             boughtLots=invest/bidPrice
             tradeFee=pic * boughtLots
-            if (tradeFee<=(totalEq-invest)):
-                totalEq=totalEq-tradeFee
+            if (tradeFee<=(totalMoney-invest)):
+                totalMoney=totalMoney-tradeFee-invest
                 totalTrades = totalTrades + 1
                 print ('Buy  Date {0} Time {1}'.format(data[i]['Date'], data[i]['Time']))
                 bought = True
                 entryPrice=bidPrice
                 stopLossPrice=entryPrice-stopLossVal*pic
+                sellPrice=entryPrice+sellNum*pic
                 timeFirstBuy =  data[i]["Time"]
                 print ('valueInterest {0} Bid Price {1}'.format(valueInterest, bidPrice))
                 buyVec.append(bidPrice)
@@ -206,10 +211,10 @@ for i in range (0, 150000):
         #if buyAmount<0 and bought == True:
         if isSell == True:
             #if (abs(buyLots)<=totalLots) and (tradeFee<=totalMoney):
-            if (tradeFee<=(totalEq-invest)):
+            if (tradeFee<=(totalMoney)):
                 tradeFee=pic * boughtLots
                 amount=bidPrice*boughtLots
-                totalEq=totalEq-invest+amount-tradeFee
+                totalMoney=totalMoney-tradeFee+amount
                 totalTrades = totalTrades + 1
                 print ('Sell  Date {0} Time {1}'.format(data[i]['Date'], data[i]['Time']))
                 print ('valueInterest {0} Bid Price {1}'.format(valueInterest, bidPrice))
@@ -224,12 +229,19 @@ for i in range (0, 150000):
         else:
             amtVec.append(0)
     #totalCash = totalMoney + totalAssets
+    if bought==True:
+        totalEq=totalMoney+bidPrice*boughtLots
+    else:
+        totalEq=totalMoney
     totalMonVec.append(totalEq)
     xVec.append(i)
     xVals.append(i)
     yVals.append(bidPrice)
     lastPrice = bidPrice
- 
+
+
+	
+	
  
     
 df = pd.DataFrame(totalMonVec)
@@ -245,7 +257,7 @@ df.plot()
 ##
 ##df4=pd.DataFrame(sellVec)
 ##df4.plot()
-plt.ion()
+#plt.ion()
 plt.show()
 print('Total Equity {0}'.format(totalEq))
 
