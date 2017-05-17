@@ -131,12 +131,12 @@ for i in range (0, 150000):
 
 
     
-    if len(xVals)>1000:  
+    if len(xVals)>10000:  
         xVals.pop(0)
         yVals.pop(0)
         
-        xCut = xVals[:999]
-        yCut = yVals[:999]
+        xCut = xVals[:9999]
+        yCut = yVals[:9999]
         regression = np.polyfit(xCut, yCut, 1)
         #print('Regression a {0} b {1} Time {2}'.format(regression[0], regression[1], data["prices"][i]["snapshotTime"]))
         valueInterest = regression[0]*i + regression[1]
