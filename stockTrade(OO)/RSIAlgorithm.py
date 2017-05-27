@@ -14,6 +14,8 @@ class RSIAlgorithm(Algorithm):
         self.first = True
         self.prevAvgLoss = 0.0
         self.bought = False
+        self.RSI=0
+        self.RSIVec=[]
         
     def trade(self, date, time, price):
         datetime_object = datetime.strptime(time, '%H:%M:%S')
@@ -32,18 +34,18 @@ class RSIAlgorithm(Algorithm):
                self.first = False
                self.gainlossVec= self.gainlossVec[1:]
                #self.gainlossVec.append(price)
-               print ('Avg Gain {0}, Avg Loss {1}'.format(averageGain, averageLoss))
+               #print ('Avg Gain {0}, Avg Loss {1}'.format(averageGain, averageLoss))
                if averageLoss>0:
                    RS = averageGain/averageLoss
                else:
                    RS = 1000000
                self.RSI = 100 - 100 / (1+RS)
                if self.RSI < 31:
-                   print ('Condition met')
+                   #print ('Condition met')
                    self.condition = True
                    self.conditionTime = datetime_object 
-               print ('RSI {0}'.format(self.RSI))
-                
+               #print ('RSI {0}'.format(self.RSI))
+        self.RSIVec.append(self.RSI)        
         self.lastPrice=price
         
         datetime_object = datetime.strptime(time, '%H:%M:%S')
@@ -103,9 +105,9 @@ class RSIAlgorithm(Algorithm):
     def isBuy(self, time, price):
         datetime_object = datetime.strptime(time, '%H:%M:%S')
         diff = datetime_object - self.conditionTime
-        if self.condition is True and self.RSI > 50.00 and diff.seconds < 14*5*60 and self.bought is False:
-            self.sellPrice=price + 0.001
-            self.stopPrice=price-0.01
+        if self.condition is True and self.RSI > 40.00 and diff.seconds < 14*5*60 and self.bought is False:
+            self.sellPrice=price + 20 * 0.0001
+            self.stopPrice=price-20 * 0.0001
             #self.condition  = False
             self.bought = True
             return True
@@ -114,7 +116,7 @@ class RSIAlgorithm(Algorithm):
             return False
 
     def isSell(self, price):
-        if price > self.sellPrice or price < self.stopPrice and self.bought is True:
+        if (price > self.sellPrice or price < self.stopPrice) and self.bought is True:
             self.sellPrice=9999
             self.condition=False
             self.stopPrice=0
