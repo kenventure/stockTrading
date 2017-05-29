@@ -2,6 +2,7 @@ from TradeBroker import TradeBroker
 from RSIAlgorithm import RSIAlgorithm
 from Algorithm import Algorithm
 from MatPlotDisplay import MatPlotDisplay
+from PlotlyDisplay import PlotlyDisplay
 import os
 
 import csv
@@ -28,6 +29,7 @@ with open('EURCHF_m5_Bid.csv', 'rt') as f:
 
 rsiAlgorithm=RSIAlgorithm(intervalMin=5)
 display=MatPlotDisplay()
+#display=PlotlyDisplay()
 myBroker = TradeBroker(data = data, totalMoney=11000, invest=10000, algorithm = rsiAlgorithm, display=display)
 
 myBroker.trade()
