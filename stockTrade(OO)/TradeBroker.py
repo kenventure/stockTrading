@@ -17,6 +17,7 @@ class TradeBroker (object):
         
     def trade(self):
         annoVec = []
+        priceVec=[]
         for i in range (0, len(self.data)):
         #for i in range (0, 500):
             
@@ -31,7 +32,8 @@ class TradeBroker (object):
                 self.boughtLots=self.invest/bidPrice
                 self.totalMoney = self.totalMoney - self.invest
                 self.trades = self.trades + 1
-                annoVec.append('buy ' + str(bidPrice))
+                #annoVec.append('buy ' + str(bidPrice))
+                annoVec.append('b')
                 anno = True
             if self.algorithm.isSell(bidPrice) is True:
                 print (i)
@@ -39,14 +41,17 @@ class TradeBroker (object):
                 self.totalMoney = self.totalMoney + self.boughtLots*bidPrice
                 self.boughtLots=0
                 self.trades = self.trades + 1
-                annoVec.append('sell '+ str(bidPrice))
+                #annoVec.append('sell '+ str(bidPrice))
+                annoVec.append('s')
                 anno = True
             if anno is False:
                 annoVec.append('')
             #print ('Total Money {0}'.format(self.totalMoney))
             self.Equity = self.totalMoney + self.boughtLots * bidPrice
             self.EquityVec.append(self.Equity)
-        self.display.display(self.EquityVec, annoVec)
+            priceVec.append(bidPrice)
+        self.display.display(self.EquityVec, annoVec, priceVec)
+        self.display.log(self.EquityVec, annoVec, priceVec)
         #plt.plot(self.EquityVec)
         #ax = plt.subplots()
         #for i in range(0,len(self.data)):
