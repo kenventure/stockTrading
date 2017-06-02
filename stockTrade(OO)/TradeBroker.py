@@ -18,7 +18,7 @@ class TradeBroker (object):
     def trade(self):
         annoVec = []
         priceVec=[]
-        for i in range (0, len(self.data)):
+        for i in range (0, len(self.data)-100000):
         #for i in range (0, 500):
             
             bidPrice = float(self.data[i]["Close"])
@@ -50,7 +50,7 @@ class TradeBroker (object):
             self.Equity = self.totalMoney + self.boughtLots * bidPrice
             self.EquityVec.append(self.Equity)
             priceVec.append(bidPrice)
-        self.display.display(self.EquityVec, annoVec, priceVec)
+        self.display.display(self.EquityVec, annoVec, priceVec, self.algorithm.getRSIVec())
         self.display.log(self.EquityVec, annoVec, priceVec)
         #plt.plot(self.EquityVec)
         #ax = plt.subplots()

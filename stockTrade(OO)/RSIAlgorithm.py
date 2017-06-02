@@ -124,4 +124,7 @@ class RSIAlgorithm(Algorithm):
             return True
         else:
             return False
+            
+    def getRSIVec(self):
+        return self.RSIVec
         

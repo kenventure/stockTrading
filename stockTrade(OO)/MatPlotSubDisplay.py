@@ -9,11 +9,11 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
 from Display import Display
 
-class MatPlotStockDisplay (Display):
+class MatPlotSubDisplay (Display):
     def __init__(self):
         print('Init')
         
-    def display(self, arr, anno, price, rsi):
+    def display(self, arr, anno, price):
         buyVec=[]
         sellVec=[]
         for i in range(0, len(anno)):
@@ -30,32 +30,29 @@ class MatPlotStockDisplay (Display):
         plt.rc('axes', grid=True)
         plt.rc('grid', color='0.75', linestyle='-', linewidth=0.5)
         textsize = 9
-        left, width = 0.1, 0.8
-        rect1 = [left, 0.8, width, 0.2]
-        rect2 = [left, 0.6, width, 0.2]
-        rect3 = [left, 0.4, width, 0.2]
-        rect4 = [left, 0.2, width, 0.1]
-        rect5 = [left, 0.1, width, 0.1]
+        #left, width = 0.1, 0.8
+        #rect1 = [left, 0.7, width, 0.3]
+        #rect2 = [left, 0.35, width, 0.3]
+        #rect3 = [left, 0.2, width, 0.1]
+        #rect4 = [left, 0.05, width, 0.1]
+        
         fig = plt.figure(facecolor='white')
         axescolor = '#f6f6f6'  # the axes background color
         fillcolor = 'darkgoldenrod'
-        ax1 = fig.add_axes(rect1, axisbg=axescolor)  # left, bottom, width, height
+        ax1 = plt.subplot(4,1,1)  # left, bottom, width, height
         ax1.plot(arr, color=fillcolor)
         ax1.text(0.025, 0.95, 'Equity', va='top', transform=ax1.transAxes, fontsize=textsize)
 
-        ax2 = fig.add_axes(rect2, axisbg=axescolor, sharex=ax1)
+        ax2 = plt.subplot(4,1,2)  # left, bottom, width, height
         ax2.yaxis.set_ticks(np.arange(0.9, 1.3, 0.001))
         ax2.plot(price, color=fillcolor)
         ax2.text(0.025, 0.95, 'Bid Price', va='top', transform=ax2.transAxes, fontsize=textsize)
-        ax3 = fig.add_axes(rect3, axisbg=axescolor, sharex=ax1)
-        ax3.plot(rsi, color='red')        
-        ax3.text(0.025, 0.95, 'RSI', va='top', transform=ax3.transAxes, fontsize=textsize)
-        ax4 = fig.add_axes(rect4, axisbg=axescolor, sharex=ax1)
-        ax4.plot(buyVec, color='red')        
-        ax4.text(0.025, 0.95, 'Buy', va='top', transform=ax4.transAxes, fontsize=textsize)
-        ax5 = fig.add_axes(rect5, axisbg=axescolor, sharex=ax1)
-        ax5.plot(sellVec, color='green')        
-        ax5.text(0.025, 0.95, 'Sell', va='top', transform=ax5.transAxes, fontsize=textsize)
+        ax3 = plt.subplot(4,1,3)  # left, bottom, width, height
+        ax3.plot(buyVec, color='red')        
+        ax3.text(0.025, 0.95, 'Buy', va='top', transform=ax3.transAxes, fontsize=textsize)
+        ax4 = plt.subplot(4,1,4)  # left, bottom, width, height
+        ax4.plot(sellVec, color='green')        
+        ax4.text(0.025, 0.95, 'Sell', va='top', transform=ax4.transAxes, fontsize=textsize)
         plt.show()
         
 
