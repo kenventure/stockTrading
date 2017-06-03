@@ -16,7 +16,10 @@ class RSIAlgorithm(Algorithm):
         self.bought = False
         self.RSI=0
         self.RSIVec=[]
-        
+        self.RSILevel = 40
+    def setRSILevel(self, level):
+        self.RSILevel = level
+                
     def trade(self, date, time, price):
         datetime_object = datetime.strptime(time, '%H:%M:%S')
         if self.isStart is True:
@@ -105,7 +108,7 @@ class RSIAlgorithm(Algorithm):
     def isBuy(self, time, price):
         datetime_object = datetime.strptime(time, '%H:%M:%S')
         diff = datetime_object - self.conditionTime
-        if self.condition is True and self.RSI > 40.00 and diff.seconds < 14*5*60 and self.bought is False:
+        if self.condition is True and self.RSI > self.RSILevel and diff.seconds < 14*5*60 and self.bought is False:
             self.sellPrice=price + 20 * 0.0001
             self.stopPrice=price-20 * 0.0001
             #self.condition  = False
