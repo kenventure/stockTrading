@@ -3,8 +3,8 @@ from Algorithm import Algorithm
 from Display import Display
 import matplotlib.pyplot as plt
 
-class GUITradeBroker (object):
-    def __init__(self, data, totalMoney, invest, algorithm, ):
+class SPYTradeBroker (object):
+    def __init__(self, data, totalMoney, invest, algorithm, display):
         self.data = data
         self.totalMoney=totalMoney
         self.invest=invest
@@ -13,39 +13,27 @@ class GUITradeBroker (object):
         self.Equity = totalMoney
         self.EquityVec = []
         self.trades = 0
-     
-    def updateAlgorithm(self, algo):
-        self.algorithm=algo
-    
-    def getEquityArr(self):
-        return self.EquityVec
+        self.display = display
         
-    def getPriceArr(self):
-        return self.priceVec
-        
-    def getAnnoArr(self):
-        return self.annoVec
-    def getRSIArr(self):
-        return self.algorithm.getRSIVec()
     def trade(self):
-        self.annoVec = []
-        self.priceVec=[]
+        annoVec = []
+        priceVec=[]
         for i in range (0, len(self.data)):
         #for i in range (0, 500):
             
             bidPrice = float(self.data[i]["Close"])
             time = self.data[i]["Time"]
             date = self.data[i]["Date"]
-            self.algorithm.trade(date, time, bidPrice)
+            self.algorithm.trade(bidPrice)
             anno = False
-            if self.algorithm.isBuy(time, bidPrice) is True:
+            if self.algorithm.isBuy(bidPrice) is True:
                 print (i)
                 print ('Buy price {0}'.format(bidPrice))
                 self.boughtLots=self.invest/bidPrice
                 self.totalMoney = self.totalMoney - self.invest
                 self.trades = self.trades + 1
                 #annoVec.append('buy ' + str(bidPrice))
-                self.annoVec.append('b')
+                annoVec.append('b')
                 anno = True
             if self.algorithm.isSell(bidPrice) is True:
                 print (i)
@@ -54,15 +42,21 @@ class GUITradeBroker (object):
                 self.boughtLots=0
                 self.trades = self.trades + 1
                 #annoVec.append('sell '+ str(bidPrice))
-                self.annoVec.append('s')
+                annoVec.append('s')
                 anno = True
             if anno is False:
-                self.annoVec.append('')
+                annoVec.append('')
             #print ('Total Money {0}'.format(self.totalMoney))
             self.Equity = self.totalMoney + self.boughtLots * bidPrice
             self.EquityVec.append(self.Equity)
-            self.priceVec.append(bidPrice)
-
+            priceVec.append(bidPrice)
+        self.display.display(self.EquityVec, annoVec, priceVec, self.algorithm.getRSIVec())
+        self.display.log(self.EquityVec, annoVec, priceVec)
+        #plt.plot(self.EquityVec)
+        #ax = plt.subplots()
+        #for i in range(0,len(self.data)):
+        #    ax.annotate(annoVec[i], self.EquityVec[i])
+        #plt.show()
         print ('Total Money {0} Trades {1}'.format(self.totalMoney, self.trades))
 
         

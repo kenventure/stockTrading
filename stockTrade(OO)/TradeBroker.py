@@ -18,7 +18,7 @@ class TradeBroker (object):
     def trade(self):
         annoVec = []
         priceVec=[]
-        for i in range (0, len(self.data)-100000):
+        for i in range (0, len(self.data)):
         #for i in range (0, 500):
             
             bidPrice = float(self.data[i]["Close"])

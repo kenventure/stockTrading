@@ -182,14 +182,13 @@ class MatPlotWxDisplay(wx.Frame):
 
         self.fig = Figure((5.0, 4.0), dpi=self.dpi)
 
-        self.canvas = FigCanvas(self.panel, -1, self.fig)
-
+        
         left, width = 0.1, 0.8
         rect1 = [left, 0.75, width, 0.2]
         rect2 = [left, 0.5, width, 0.2]
-        rect3 = [left, 0.4, width, 0.2]
-        rect4 = [left, 0.2, width, 0.1]
-        rect5 = [left, 0.1, width, 0.1]    
+        rect3 = [left, 0.25, width, 0.2]
+        rect4 = [left, 0.1, width, 0.1]
+        #rect5 = [left, 0.1, width, 0.1]    
         textsize = 9        
         axescolor = '#f6f6f6'  # the axes background color
         self.ax1 = self.fig.add_axes(rect1, axisbg=axescolor)  # left, bottom, width, height
@@ -197,6 +196,17 @@ class MatPlotWxDisplay(wx.Frame):
         
         self.ax2 = self.fig.add_axes(rect2, axisbg=axescolor)  # left, bottom, width, height
         self.ax2.text(0.025, 0.95, 'Price', va='top', transform=self.ax2.transAxes, fontsize=textsize)
+        
+        self.ax3 = self.fig.add_axes(rect3, axisbg=axescolor)  # left, bottom, width, height
+        self.ax3.text(0.025, 0.95, 'RSI', va='top', transform=self.ax3.transAxes, fontsize=textsize)
+        
+        self.ax4 = self.fig.add_axes(rect4, axisbg=axescolor)  # left, bottom, width, height
+        self.ax4.text(0.025, 0.95, 'Buy / Sell', va='top', transform=self.ax4.transAxes, fontsize=textsize)
+        
+        self.canvas = FigCanvas(self.panel, -1, self.fig)
+
+        #self.ax5 = self.fig.add_axes(rect5, axisbg=axescolor)  # left, bottom, width, height
+        #self.ax5.text(0.025, 0.95, 'Sell', va='top', transform=self.ax5.transAxes, fontsize=textsize)
         # Since we have only one plot, we can use add_axes 
 
         # instead of add_subplot, but then the subplot
@@ -411,6 +421,26 @@ class MatPlotWxDisplay(wx.Frame):
         self.ax2.clear()
         self.ax2.text(0.025, 0.95, 'Price', va='top', transform=self.ax2.transAxes, fontsize=textsize)
         self.ax2.plot(self.broker.getPriceArr(), color=fillcolor)
+ 
+        self.ax3.clear()
+        self.ax3.text(0.025, 0.95, 'RSI', va='top', transform=self.ax3.transAxes, fontsize=textsize)
+        self.ax3.plot(self.broker.getRSIArr(), color=fillcolor)
+
+        bsVec=[]
+        annoVec=self.broker.getAnnoArr()
+        for i in range(0, len(annoVec)):
+            if annoVec[i] is 'b':
+                bsVec.append(10)
+            else:
+                if annoVec[i] is 's':
+                    bsVec.append(100)
+                else:
+                    bsVec.append(0)
+        
+        self.ax4.clear()
+        self.ax4.text(0.025, 0.95, 'Buy / Sell', va='top', transform=self.ax4.transAxes, fontsize=textsize)
+        self.ax4.plot(bsVec, color=fillcolor)
+
         
         self.canvas.draw()
 
