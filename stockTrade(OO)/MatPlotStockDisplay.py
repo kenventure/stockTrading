@@ -44,7 +44,7 @@ class MatPlotStockDisplay (Display):
         ax1.text(0.025, 0.95, 'Equity', va='top', transform=ax1.transAxes, fontsize=textsize)
 
         ax2 = fig.add_axes(rect2, axisbg=axescolor, sharex=ax1)
-        ax2.yaxis.set_ticks(np.arange(0.9, 1.3, 0.001))
+        #ax2.yaxis.set_ticks(np.arange(0.9, 1.3, 0.001))
         ax2.plot(price, color=fillcolor)
         ax2.text(0.025, 0.95, 'Bid Price', va='top', transform=ax2.transAxes, fontsize=textsize)
         ax3 = fig.add_axes(rect3, axisbg=axescolor, sharex=ax1)
