@@ -40,7 +40,7 @@ class RSIAlgorithm5(Algorithm):
         else:
             #diff = datetime_object - self.dateStart
             
-            self.gainlossVec.append(price-self.lastPrice)
+            
             #print (self.gainlossVec)
             #print (len(self.gainlossVec))
             if self.currTime > 14:
@@ -66,6 +66,10 @@ class RSIAlgorithm5(Algorithm):
                    self.sellcondTime=self.currTime
                    #print ('Sell condition set to true')
                #print ('RSI {0}'.format(self.RSI))
+            if self.currTime==0:
+                self.gainLossVec.append(0)
+            else:
+                self.gainlossVec.append(price-self.lastPrice)
         self.RSIVec.append(self.RSI)        
         self.lastPrice=price
         
