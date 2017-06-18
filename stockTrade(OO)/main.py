@@ -5,6 +5,7 @@ from RSIAlgorithm2 import RSIAlgorithm2
 from RSIAlgorithm3 import RSIAlgorithm3
 from RSIAlgorithm4 import RSIAlgorithm4
 from RSIAlgorithm5 import RSIAlgorithm5
+from RSIAlgorithm6 import RSIAlgorithm6
 from Algorithm import Algorithm
 from MatPlotDisplay import MatPlotDisplay
 from PlotlyDisplay import PlotlyDisplay
@@ -39,7 +40,8 @@ with open('SPYData28Mar2017.csv', 'rt') as f:
 #rsiAlgorithm=RSIAlgorithm2(intervalMin=5)
 #rsiAlgorithm=RSIAlgorithm3(intervalMin=5)
 #rsiAlgorithm=RSIAlgorithm4(intervalMin=5)
-rsiAlgorithm=RSIAlgorithm5(intervalMin=5)
+#rsiAlgorithm=RSIAlgorithm5(intervalMin=5)
+rsiAlgorithm=RSIAlgorithm6(intervalMin=5)
 display=MatPlotStockDisplay()
 #display = MatPlotSubDisplay()
 #display=MatPlotDisplay()
