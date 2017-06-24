@@ -21,8 +21,8 @@ class SPYTradeBroker (object):
         lastPrice=0
         entryPrice=0
         totalAtEntry=0
-        #for i in range (0, len(self.data)):
-        for i in range (0, 1000):
+        for i in range (0, len(self.data)):
+        #for i in range (0, 1000):
             
             bidPrice = float(self.data[i]["Close"])
             time = self.data[i]["Time"]
@@ -75,7 +75,7 @@ class SPYTradeBroker (object):
             
             lastPrice=bidPrice
             
-        self.display.display(self.EquityVec, annoVec, priceVec, self.algorithm.getRSIVec())
+        self.display.display(self.EquityVec, annoVec, priceVec, self.algorithm.getRSIVec(), self.algorithm.getStdVec())
         self.display.log(self.EquityVec, annoVec, priceVec)
         #plt.plot(self.EquityVec)
         #ax = plt.subplots()
