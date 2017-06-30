@@ -196,7 +196,7 @@ class RSIAlgorithm8(Algorithm):
                     return False
             else:
                 stdDev = self.guardArr.stdDev()
-                stdPrice = self.openPrice +2* stdDev
+                stdPrice = self.openPrice +1.5* stdDev
                 
                 if (self.position == -1) and ((self.RSI< self.buyRSI) or (self.RSI > self.buyStopRSI) or (price > stdPrice)):
                     print ('Buy Close position: {0}'.format(self.position))
@@ -215,7 +215,7 @@ class RSIAlgorithm8(Algorithm):
         if self.currTime>15:
             if self.isOpen is True and self.position == 1:
                 stdDev = self.guardArr.stdDev()
-                stdPrice = self.openPrice -2* stdDev
+                stdPrice = self.openPrice -1.5* stdDev
                           
                 if (self.RSI > self.sellRSI) or (self.RSI < self.stopRSI) or (price<stdPrice):
                     print('Sell Close')
