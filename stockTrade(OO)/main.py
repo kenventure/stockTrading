@@ -9,13 +9,15 @@ from RSIAlgorithm6 import RSIAlgorithm6
 from RSIAlgorithm8 import RSIAlgorithm8
 from Algorithm import Algorithm
 from MatPlotDisplay import MatPlotDisplay
-from PlotlyDisplay import PlotlyDisplay
+#from PlotlyDisplay import PlotlyDisplay
 from MatPlotStockDisplay import MatPlotStockDisplay
 from MatPlotStockDisplay2 import MatPlotStockDisplay2
-from MatPlotSubDisplay import MatPlotSubDisplay
+#from MatPlotSubDisplay import MatPlotSubDisplay
 import os
 
 import csv
+
+from IGTradeBroker import IGTradeBroker
 
 default_path='C:\\Users\\ktcm2\\Documents\\python\\stockTrading\\stockTrade(OO)'
 os.chdir(default_path)
@@ -50,6 +52,10 @@ display=MatPlotStockDisplay2()
 #display = MatPlotSubDisplay()
 #display=MatPlotDisplay()
 #display=PlotlyDisplay()
-myBroker = SPYTradeBroker(data = data, totalMoney=11000, invest=10000, algorithm = rsiAlgorithm, display=display)
+#myBroker = SPYTradeBroker(data = data, totalMoney=11000, invest=10000, algorithm = rsiAlgorithm, display=display)
+
+myBroker = IGTradeBroker(totalMoney=11000, invest=10000, algorithm = rsiAlgorithm, display=display)
+
+#myBroker.placePosition(True)
 
 myBroker.trade()

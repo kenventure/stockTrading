@@ -59,7 +59,8 @@ print (r1.text)
 
 
 #urlMarket = "https://demo-api.ig.com/gateway/deal/prices/CS.D.EURUSD.MINI.IP?resolution=MINUTE_5&from=2017-06-21T00%3A00%3A00&to=2017-06-21T23%3A59%3A59&max=100&pageSize=100&pageNumber=1"
-urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP?resolution=MINUTE_5&from=2017-06-21T00%3A00%3A00&to=2017-06-21T23%3A59%3A59&max=100&pageSize=100&pageNumber=1"
+#urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP?resolution=MINUTE_5&from=2017-06-21T00%3A00%3A00&to=2017-06-21T23%3A59%3A59&max=100&pageSize=100&pageNumber=1"
+urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP"
 
 headers = { "Content-Type": "application/json; charset=utf-8",
 "Accept": "application/json; charset=utf-8",
@@ -72,4 +73,86 @@ headers = { "Content-Type": "application/json; charset=utf-8",
 r1 = requests.get(urlMarket, headers = headers)
 
 print(r1.status_code)
+print (r1.text) 
+
+json_data = json.loads(r1.text)
+
+prices = json_data["prices"]
+
+print prices
+
+lastLot = prices[len(prices)-1]
+
+print lastLot
+
+closePrice = lastLot['closePrice']['bid']
+
+print closePrice
+
+urlPosition="https://demo-api.ig.com/gateway/deal/positions/otc"
+
+
+headers = { "Content-Type": "application/json; charset=utf-8",
+"Accept": "application/json; charset=utf-8",
+"X-IG-API-KEY": m_apiKey,
+"Version": "2",
+"X-SECURITY-TOKEN": r.headers['X-SECURITY-TOKEN'],
+"CST": r.headers['CST']
+}
+
+data = {
+"currencyCode":"SGD",
+"direction":"BUY",
+"epic": "IX.D.DOW.IFG.IP",
+"expiry": "-",
+"forceOpen":"false",
+"guaranteedStop":"false",
+"level":None,
+"limitDistance":None,
+"limitLevel":None,
+"orderType":"MARKET",
+"quoteId":None,
+"size": "20",
+"stopDistance":None,
+"stopLevel":None,
+"timeInForce":"EXECUTE_AND_ELIMINATE",
+"trailingStop":"false",
+"trailingStopIncrement":None
+}
+
+payload=json.dumps(data)
+
+r1 = requests.post(urlPosition, data=payload, headers = headers)
+
+print(r1.status_code)
+print (r1.headers)
+print (r1.text) 
+
+
+dataL = {
+"currencyCode":"SGD",
+"direction":"BUY",
+"epic": "IX.D.DOW.IFG.IP",
+"expiry": "-",
+"forceOpen":"false",
+"guaranteedStop":"false",
+"level":"21430",
+"limitDistance":None,
+"limitLevel":"21435",
+"orderType":"LIMIT",
+"quoteId":None,
+"size": "20",
+"stopDistance":None,
+"stopLevel":None,
+"timeInForce":"EXECUTE_AND_ELIMINATE",
+"trailingStop":"false",
+"trailingStopIncrement":None
+}
+
+payload=json.dumps(dataL)
+
+r1 = requests.post(urlPosition, data=payload, headers = headers)
+
+print(r1.status_code)
+print (r1.headers)
 print (r1.text) 
