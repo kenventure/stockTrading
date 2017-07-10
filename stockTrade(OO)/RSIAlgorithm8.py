@@ -119,12 +119,14 @@ class RSIAlgorithm8(Algorithm):
                 totalLoss=totalLoss+abs(self.gradCalVec[i])
             else:
                 totalGain= totalGain+self.gradCalVec[i]
-        
-        if (totalGain/totalLoss)>1.2:
-            #print('set gradient to false')
-            self.gradCond=False
-        else:
-            self.gradCond=True
+        if totalLoss==0:
+	    self.gradCond=False
+	else:
+            if (totalGain/totalLoss)>1.2:
+                #print('set gradient to false')
+                self.gradCond=False
+            else:
+                self.gradCond=True
             
     def findAverageGain(self, isFirst):
         if isFirst is True:
