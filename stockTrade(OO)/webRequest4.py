@@ -60,12 +60,18 @@ print (r1.text)
 
 #urlMarket = "https://demo-api.ig.com/gateway/deal/prices/CS.D.EURUSD.MINI.IP?resolution=MINUTE_5&from=2017-06-21T00%3A00%3A00&to=2017-06-21T23%3A59%3A59&max=100&pageSize=100&pageNumber=1"
 #urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP?resolution=MINUTE_5&from=2017-06-21T00%3A00%3A00&to=2017-06-21T23%3A59%3A59&max=100&pageSize=100&pageNumber=1"
-urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP"
+#urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP"
+
+#urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP/MINUTE/3"
+
+
+   
+urlMarket= "https://demo-api.ig.com/gateway/deal//markets?searchTerm={IX.D.DOW.IFG.IP}"
 
 headers = { "Content-Type": "application/json; charset=utf-8",
 "Accept": "application/json; charset=utf-8",
 "X-IG-API-KEY": m_apiKey,
-"Version": "3",
+"Version": "1",
 "X-SECURITY-TOKEN": r.headers['X-SECURITY-TOKEN'],
 "CST": r.headers['CST']
 }

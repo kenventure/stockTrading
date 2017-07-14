@@ -66,12 +66,12 @@ class IGTradeBrokerND (object):
         self.CST = r.headers['CST']
         
     def getTradePrice(self):
-        urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP"
-
+        #urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP"
+        urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP/MINUTE/3"
         headers = { "Content-Type": "application/json; charset=utf-8",
         "Accept": "application/json; charset=utf-8",
         "X-IG-API-KEY": self.apiKey,
-        "Version": "3",
+        "Version": "2",
         "X-SECURITY-TOKEN": self.token,
         "CST": self.CST
         }
@@ -80,22 +80,27 @@ class IGTradeBrokerND (object):
 
         print(r1.status_code)
         #print (r1.text) 
+        if r1.status_code == 200:
+            json_data = json.loads(r1.text)
 
-        json_data = json.loads(r1.text)
+            prices = json_data["prices"]
 
-        prices = json_data["prices"]
+            #print prices
 
-        #print prices
+            lastLot = prices[len(prices)-1]
+            
+            closePrice = lastLot['closePrice']['bid']
 
-        lastLot = prices[len(prices)-1]
-        
-        closePrice = lastLot['closePrice']['bid']
-
-        print closePrice
-        if closePrice=="":
-            return 0
+            print closePrice
+            if closePrice is None or closePrice == "":
+                return 0
+            else:
+                return float(closePrice)                
         else:
-            return float(closePrice)
+            print (r1.headers)
+            print (r1.text)
+            #self.login()
+            return 0
 
     def placePosition(self, isBuy):
         urlPosition="https://demo-api.ig.com/gateway/deal/positions/otc"
@@ -152,15 +157,17 @@ class IGTradeBrokerND (object):
         while True:
         #for i in range (0, 1000):   
             bidPrice = self.getTradePrice()
-	    if bidPrice is None:
-		continue
-	    print ("Resolving...")
+            if bidPrice is None or bidPrice == 0:
+                time.sleep(self.delay)
+                continue
+                print ("Resolving...")
             self.algorithm.trade(bidPrice)
             anno = False
             self.boughtLots=50
             RSI = self.algorithm.getRSI()
+            print ("RSI {0}".format(RSI))
             if self.algorithm.isBuy(bidPrice) is True:
-                print (i)
+                #print (i)
                 print ('Buy price {0} RSI {1}'.format(bidPrice, RSI))
                 #self.boughtLots=self.invest/bidPrice
                 totalAtEntry=self.totalMoney
@@ -173,7 +180,7 @@ class IGTradeBrokerND (object):
                 entryPrice=bidPrice
                 print('')
             if self.algorithm.isSell(bidPrice) is True:
-                print (i)
+                #print (i)
                 print ('Sell price {0} RSI{1}'.format(bidPrice, RSI))
                 totalAtEntry=self.totalMoney
                 self.totalMoney = self.totalMoney + self.boughtLots*bidPrice
