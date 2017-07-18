@@ -32,7 +32,9 @@ def main():
     # Establishing a new connection to Lightstreamer Server
     print("Starting connection")
     #lightstreamer_client = LSClient("http://localhost:8080", "DEMO")
-    lightstreamer_client = LSClient("http://push.lightstreamer.com", "DEMO")
+    #lightstreamer_client = LSClient("http://push.lightstreamer.com", "DEMO")
+    lightstreamer_client = LSClient("http://demo-apd.marketdatasystems.com", user="lthams", password="1q2w3e4rT")
+    #lightstreamer_client = LSClient("http://demo-apd.marketdatasystems.com", "DEMO", "f9f2319f-7724-4ea3-ae2b-2805123039c1", "1q2w3e4rT")
     try:
         lightstreamer_client.connect()
     except Exception as e:
