@@ -56,7 +56,7 @@ rsiAlgorithm=RSIAlgorithm8(intervalMin=5)
 #myBroker = SPYTradeBroker(data = data, totalMoney=11000, invest=10000, algorithm = rsiAlgorithm, display=display)
 
 #myBroker = IGTradeBroker(totalMoney=11000, invest=10000, algorithm = rsiAlgorithm, display=display)
-
+print('Start')
 myBroker = IGTradeBrokerND(totalMoney=11000, invest=10000, algorithm = rsiAlgorithm)
 #myBroker.placePosition(True)
 

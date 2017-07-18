@@ -9,7 +9,40 @@ from Cryptodome.PublicKey import RSA
 from Cryptodome.Cipher import PKCS1_v1_5 
 import time
 import datetime
+from stockLight import LSClient,Subscription
+from threading import Lock
 
+mutex = Lock()
+currPrice=0
+lightstreamer_client=None
+subsription=None
+def on_item_update(item_update):
+    #print('item update')
+    #print("Bid {0}".format(**item_update["BID"]))
+    #print("{stock_name:<19}: Last{last_price:>6} - Time {time:<8} - "
+    #      "Bid {bid:>5} - Ask {ask:>5}".format(**item_update["values"]))
+    print("Bid {BID:>5} - Ask {OFFER:>5} - Update Time {UPDATE_TIME:<20}".format(**item_update["values"]))
+    strPrice="{BID:>5}".format(**item_update["values"])
+    print(strPrice)
+    mutex.acquire()
+    currPrice=float(strPrice)
+    mutex.release()
+ 
+def connectLightStreamer(password):
+    lightstreamer_client = LSClient("https://demo-apd.marketdatasystems.com", "DEFAULT", user="lthams", password=password)
+    try:
+        lightstreamer_client.connect()
+    except Exception as e:
+        print("Unable to connect to Lightstreamer Server")
+        print(traceback.format_exc())
+        sys.exit(1)
+    subscription = Subscription(
+    mode="MERGE",
+    items=["MARKET:IX.D.DOW.IFG.IP"],
+    fields=["BID", "OFFER", "UPDATE_TIME"])
+    subscription.addlistener(on_item_update)
+    sub_key = lightstreamer_client.subscribe(subscription)
+    
 class IGTradeBrokerND (object):
     def __init__(self, totalMoney, invest, algorithm):
         #self.data = data
@@ -64,43 +97,12 @@ class IGTradeBrokerND (object):
         self.apiKey = m_apiKey
         self.token = r.headers['X-SECURITY-TOKEN']
         self.CST = r.headers['CST']
+        self.passwordCAT = "CST-"+r.headers['CST']+"|"+"XST-"+r.headers['X-SECURITY-TOKEN']
+        connectLightStreamer(self.passwordCAT)
+        print('finish')
         
     def getTradePrice(self):
-        #urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP"
-        urlMarket = "https://demo-api.ig.com/gateway/deal/prices/IX.D.DOW.IFG.IP/MINUTE/3"
-        headers = { "Content-Type": "application/json; charset=utf-8",
-        "Accept": "application/json; charset=utf-8",
-        "X-IG-API-KEY": self.apiKey,
-        "Version": "2",
-        "X-SECURITY-TOKEN": self.token,
-        "CST": self.CST
-        }
-
-        r1 = requests.get(urlMarket, headers = headers)
-
-        print(r1.status_code)
-        #print (r1.text) 
-        if r1.status_code == 200:
-            json_data = json.loads(r1.text)
-
-            prices = json_data["prices"]
-
-            #print prices
-
-            lastLot = prices[len(prices)-1]
-            
-            closePrice = lastLot['closePrice']['bid']
-
-            print closePrice
-            if closePrice is None or closePrice == "":
-                return 0
-            else:
-                return float(closePrice)                
-        else:
-            print (r1.headers)
-            print (r1.text)
-            #self.login()
-            return 0
+        return currPrice
 
     def placePosition(self, isBuy):
         urlPosition="https://demo-api.ig.com/gateway/deal/positions/otc"
@@ -156,7 +158,10 @@ class IGTradeBrokerND (object):
         totalAtEntry=0
         while True:
         #for i in range (0, 1000):   
+            print('trade')
+            mutex.acquire()
             bidPrice = self.getTradePrice()
+            mutex.release()
             if bidPrice is None or bidPrice == 0:
                 time.sleep(self.delay)
                 continue

@@ -474,6 +474,8 @@ def on_item_update(item_update):
     #print("{stock_name:<19}: Last{last_price:>6} - Time {time:<8} - "
     #      "Bid {bid:>5} - Ask {ask:>5}".format(**item_update["values"]))
     print("Bid {BID:>5} - Ask {OFFER:>5} - Update Time {UPDATE_TIME:<20}".format(**item_update["values"]))
+    strPrice="{BID:>5}".format(**item_update["values"])
+    print(strPrice)
           
 # Adding the "on_item_update" function to Subscription
 subscription.addlistener(on_item_update)
