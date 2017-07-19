@@ -12,36 +12,7 @@ import datetime
 from stockLight import LSClient,Subscription
 from threading import Lock
 
-mutex = Lock()
-currPrice=0
-lightstreamer_client=None
-subsription=None
-def on_item_update(item_update):
-    #print('item update')
-    #print("Bid {0}".format(**item_update["BID"]))
-    #print("{stock_name:<19}: Last{last_price:>6} - Time {time:<8} - "
-    #      "Bid {bid:>5} - Ask {ask:>5}".format(**item_update["values"]))
-    print("Bid {BID:>5} - Ask {OFFER:>5} - Update Time {UPDATE_TIME:<20}".format(**item_update["values"]))
-    strPrice="{BID:>5}".format(**item_update["values"])
-    print(strPrice)
-    mutex.acquire()
-    currPrice=float(strPrice)
-    mutex.release()
- 
-def connectLightStreamer(password):
-    lightstreamer_client = LSClient("https://demo-apd.marketdatasystems.com", "DEFAULT", user="lthams", password=password)
-    try:
-        lightstreamer_client.connect()
-    except Exception as e:
-        print("Unable to connect to Lightstreamer Server")
-        print(traceback.format_exc())
-        sys.exit(1)
-    subscription = Subscription(
-    mode="MERGE",
-    items=["MARKET:IX.D.DOW.IFG.IP"],
-    fields=["BID", "OFFER", "UPDATE_TIME"])
-    subscription.addlistener(on_item_update)
-    sub_key = lightstreamer_client.subscribe(subscription)
+
     
 class IGTradeBrokerND (object):
     def __init__(self, totalMoney, invest, algorithm):
@@ -56,7 +27,39 @@ class IGTradeBrokerND (object):
         #self.display = display
         self.login()
         self.delay = 60
+ 
+        self.mutex = Lock()
+        self.currPrice=0
+
+
+    def on_item_update(self, item_update):
+        #print('item update')
+        #print("Bid {0}".format(**item_update["BID"]))
+        #print("{stock_name:<19}: Last{last_price:>6} - Time {time:<8} - "
+        #      "Bid {bid:>5} - Ask {ask:>5}".format(**item_update["values"]))
+        print("Bid {BID:>5} - Ask {OFFER:>5} - Update Time {UPDATE_TIME:<20}".format(**item_update["values"]))
+        strPrice="{BID:>5}".format(**item_update["values"])
+        print(strPrice)
+        self.mutex.acquire()
         
+        self.currPrice=float(strPrice)
+        self.mutex.release()
+     
+    def connectLightStreamer(self, password):
+        self.lightstreamer_client = LSClient("https://demo-apd.marketdatasystems.com", "DEFAULT", user="lthams", password=password)
+        try:
+            self.lightstreamer_client.connect()
+        except Exception as e:
+            print("Unable to connect to Lightstreamer Server")
+            print(traceback.format_exc())
+            sys.exit(1)
+        self.subscription = Subscription(
+        mode="MERGE",
+        items=["MARKET:IX.D.DOW.IFG.IP"],
+        fields=["BID", "OFFER", "UPDATE_TIME"])
+        self.subscription.addlistener(self.on_item_update)
+        sub_key = self.lightstreamer_client.subscribe(self.subscription)
+    
     def login(self):
         url = "https://demo-api.ig.com/gateway/deal"
         identifier = "lthams"
@@ -98,11 +101,11 @@ class IGTradeBrokerND (object):
         self.token = r.headers['X-SECURITY-TOKEN']
         self.CST = r.headers['CST']
         self.passwordCAT = "CST-"+r.headers['CST']+"|"+"XST-"+r.headers['X-SECURITY-TOKEN']
-        connectLightStreamer(self.passwordCAT)
+        self.connectLightStreamer(self.passwordCAT)
         print('finish')
         
     def getTradePrice(self):
-        return currPrice
+        return self.currPrice
 
     def placePosition(self, isBuy):
         urlPosition="https://demo-api.ig.com/gateway/deal/positions/otc"
@@ -159,13 +162,14 @@ class IGTradeBrokerND (object):
         while True:
         #for i in range (0, 1000):   
             print('trade')
-            mutex.acquire()
+            self.mutex.acquire()
             bidPrice = self.getTradePrice()
-            mutex.release()
+            self.mutex.release()
             if bidPrice is None or bidPrice == 0:
+                print('Bid price wrong {0} Curr price {1}'.format(bidPrice, self.currPrice))
                 time.sleep(self.delay)
                 continue
-                print ("Resolving...")
+            print ("Resolving...")
             self.algorithm.trade(bidPrice)
             anno = False
             self.boughtLots=50

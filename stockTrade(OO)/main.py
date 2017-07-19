@@ -26,6 +26,9 @@ from IGTradeBrokerND import IGTradeBrokerND
 
 data=[]
 
+
+    
+    
 #with open('EURCHF_m5_Bid.csv', 'rt') as f:
 #with open('SPYData28Mar2017.csv', 'rt') as f:
 #    reader = csv.reader(f)
