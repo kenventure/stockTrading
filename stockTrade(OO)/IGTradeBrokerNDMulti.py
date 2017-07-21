@@ -12,7 +12,7 @@ import datetime
 from stockLight import LSClient,Subscription
 from threading import Lock
 import copy
-
+from StockLogger import StockLogger, StockEntry
     
 class IGTradeBrokerNDMulti (object):
     def __init__(self, totalMoney, invest, algorithm):
@@ -32,9 +32,12 @@ class IGTradeBrokerNDMulti (object):
         self.list1.append("IX.D.DOW.IFG.IP")
         self.list1.append("IX.D.HANGSENG.IFG.IP")
         self.list1.append("IX.D.DAX.IFG.IP")
+        self.logList={}
         for name in self.list1:
             temp = copy.deepcopy(algorithm)
             self.algoList[name]=temp
+            logger = StockLogger(name+"log.txt")
+            self.logList[name]=logger
            
         self.delay = 60
  
@@ -208,6 +211,7 @@ class IGTradeBrokerNDMulti (object):
                 
                 RSI = myAlgo.getRSI()
                 print ("RSI {0}".format(RSI))
+                tempLog = self.logList.get(stock)
                 if myAlgo.isBuy(bidPrice) is True:
                     #print (i)
                     print ('Buy price {0} RSI {1}'.format(bidPrice, RSI))
@@ -218,8 +222,13 @@ class IGTradeBrokerNDMulti (object):
                     #annoVec.append('buy ' + str(bidPrice))
                     self.placePosition(True, stock)
                     #annoVec.append('b')
-                    anno = True
+                    anno = True                    
                     entryPrice=bidPrice
+                    entry=StockEntry()
+                    entry.name=stock
+                    entry.price=bidPrice                    
+                    entry.buy=True
+                    tempLog.log(entry)
                     print('')
                 if myAlgo.isSell(bidPrice) is True:
                     #print (i)
@@ -233,6 +242,11 @@ class IGTradeBrokerNDMulti (object):
                     anno = True
                     entryPrice=bidPrice
                     self.placePosition(False, stock)
+                    entry=StockEntry()
+                    entry.name=stock
+                    entry.price=bidPrice
+                    entry.buy=False
+                    tempLog.log(entry)
                     print('')
                 #if anno is False:
                 #    annoVec.append('')
