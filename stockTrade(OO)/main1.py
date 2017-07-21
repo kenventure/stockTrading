@@ -19,16 +19,13 @@ import csv
 
 #from IGTradeBroker import IGTradeBroker
 from IGTradeBrokerND import IGTradeBrokerND
-from IGTradeBrokerNDMulti import IGTradeBrokerNDMulti
+
 #default_path='C:\\Users\\ktcm2\\Documents\\python\\stockTrading\\stockTrade(OO)'
 #os.chdir(default_path)
 
 
 data=[]
 
-
-    
-    
 #with open('EURCHF_m5_Bid.csv', 'rt') as f:
 #with open('SPYData28Mar2017.csv', 'rt') as f:
 #    reader = csv.reader(f)
@@ -60,8 +57,7 @@ rsiAlgorithm=RSIAlgorithm8(intervalMin=5)
 
 #myBroker = IGTradeBroker(totalMoney=11000, invest=10000, algorithm = rsiAlgorithm, display=display)
 print('Start')
-#myBroker = IGTradeBrokerND(totalMoney=11000, invest=10000, algorithm = rsiAlgorithm)
-myBroker = IGTradeBrokerNDMulti(totalMoney=11000, invest=10000, algorithm = rsiAlgorithm)
+myBroker = IGTradeBrokerND(totalMoney=11000, invest=10000, algorithm = rsiAlgorithm)
 #myBroker.placePosition(True)
 
 myBroker.trade()
