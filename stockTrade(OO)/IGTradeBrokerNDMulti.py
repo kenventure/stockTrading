@@ -228,6 +228,7 @@ class IGTradeBrokerNDMulti (object):
                     entry.name=stock
                     entry.price=bidPrice                    
                     entry.buy=True
+                    entry.RSI=RSI
                     tempLog.log(entry)
                     print('')
                 if myAlgo.isSell(bidPrice) is True:
@@ -246,6 +247,7 @@ class IGTradeBrokerNDMulti (object):
                     entry.name=stock
                     entry.price=bidPrice
                     entry.buy=False
+                    entry.RSI = RSI
                     tempLog.log(entry)
                     print('')
                 #if anno is False:
