@@ -13,6 +13,7 @@ from stockLight import LSClient,Subscription
 from threading import Lock
 import copy
 from StockLogger import StockLogger, StockEntry
+from OpenCloseCheck import OpenCloseCheck
     
 class IGTradeBrokerNDMulti (object):
     def __init__(self, totalMoney, invest, algorithm):
@@ -45,9 +46,11 @@ class IGTradeBrokerNDMulti (object):
         self.login()
         self.currPriceList={}
         self.clearPositions()
-        
-        
-
+        self.timeChecks={}
+        clearTime=datetime.time(4,0,0,0)
+        self.timeChecks["IX.D.DOW.IFG.IP"]=OpenCloseCheck(datetime.time(13,30,0,0), datetime.time(21,0,0,0), clearTime)
+        self.timeChecks["IX.D.HANGSENG.IFG.IP"]=OpenCloseCheck(datetime.time(2,30,0,0), datetime.time(8,0,0,0), clearTime)        
+        self.timeChecks["IX.D.DAX.IFG.IP"]=OpenCloseCheck(datetime.time(9,0,0,0), datetime.time(16,30,0,0), clearTime)        
 
 
 
@@ -328,53 +331,60 @@ class IGTradeBrokerNDMulti (object):
                     print('Bid price wrong {0} Curr price {1}'.format(bidPrice, self.currPrice))
                     time.sleep(self.delay)
                     continue
-                print ("Resolving...")
-                myAlgo = self.algoList.get(stock)
-                myAlgo.trade(bidPrice)
-                anno = False
-                self.boughtLots=50
+                print ("Resolving..." + stock)
                 
-                RSI = myAlgo.getRSI()
-                print ("RSI {0}".format(RSI))
-                tempLog = self.logList.get(stock)
-                if myAlgo.isBuy(bidPrice) is True:
-                    #print (i)
-                    print ('Buy price {0} RSI {1}'.format(bidPrice, RSI))
-                    #self.boughtLots=self.invest/bidPrice
-                    totalAtEntry=self.totalMoney
-                    self.totalMoney = self.totalMoney - self.boughtLots*bidPrice
-                    self.trades = self.trades + 1
-                    #annoVec.append('buy ' + str(bidPrice))
-                    self.placePosition(True, stock, "")
-                    #annoVec.append('b')
-                    anno = True                    
-                    entryPrice=bidPrice
-                    entry=StockEntry()
-                    entry.name=stock
-                    entry.price=bidPrice                    
-                    entry.buy=True
-                    entry.RSI=RSI
-                    tempLog.log(entry)
-                    print('')
-                if myAlgo.isSell(bidPrice) is True:
-                    #print (i)
-                    print ('Sell price {0} RSI{1}'.format(bidPrice, RSI))
-                    totalAtEntry=self.totalMoney
-                    self.totalMoney = self.totalMoney + self.boughtLots*bidPrice
-                    #self.boughtLots=0
-                    self.trades = self.trades + 1
-                    #annoVec.append('sell '+ str(bidPrice))
-                    #annoVec.append('s')
-                    anno = True
-                    entryPrice=bidPrice
-                    self.placePosition(False, stock, "")
-                    entry=StockEntry()
-                    entry.name=stock
-                    entry.price=bidPrice
-                    entry.buy=False
-                    entry.RSI = RSI
-                    tempLog.log(entry)
-                    print('')
+                timeCheck = self.timeChecks.get(stock)
+                if timeCheck.isOpen() is True:
+                    myAlgo = self.algoList.get(stock)
+                    myAlgo.trade(bidPrice)
+                    anno = False
+                    self.boughtLots=50
+                    
+                    RSI = myAlgo.getRSI()
+                    print ("RSI {0}".format(RSI))
+                    tempLog = self.logList.get(stock)
+
+                    
+                    if myAlgo.isBuy(bidPrice) is True:
+                        #print (i)
+                        print ('Buy price {0} RSI {1}'.format(bidPrice, RSI))
+                        #self.boughtLots=self.invest/bidPrice
+                        totalAtEntry=self.totalMoney
+                        self.totalMoney = self.totalMoney - self.boughtLots*bidPrice
+                        self.trades = self.trades + 1
+                        #annoVec.append('buy ' + str(bidPrice))
+                        self.placePosition(True, stock, "")
+                        #annoVec.append('b')
+                        anno = True                    
+                        entryPrice=bidPrice
+                        entry=StockEntry()
+                        entry.name=stock
+                        entry.price=bidPrice                    
+                        entry.buy=True
+                        entry.RSI=RSI
+                        tempLog.log(entry)
+                        print('')
+                    if myAlgo.isSell(bidPrice) is True:
+                        #print (i)
+                        print ('Sell price {0} RSI{1}'.format(bidPrice, RSI))
+                        totalAtEntry=self.totalMoney
+                        self.totalMoney = self.totalMoney + self.boughtLots*bidPrice
+                        #self.boughtLots=0
+                        self.trades = self.trades + 1
+                        #annoVec.append('sell '+ str(bidPrice))
+                        #annoVec.append('s')
+                        anno = True
+                        entryPrice=bidPrice
+                        self.placePosition(False, stock, "")
+                        entry=StockEntry()
+                        entry.name=stock
+                        entry.price=bidPrice
+                        entry.buy=False
+                        entry.RSI = RSI
+                        tempLog.log(entry)
+                        print('')
+                else:
+                    print (stock + ' market is not open')
                 #if anno is False:
                 #    annoVec.append('')
                 #print ('Total Money {0}'.format(self.totalMoney))
