@@ -44,7 +44,7 @@ class IGTradeBrokerNDMulti (object):
         self.mutex = Lock()
         self.login()
         self.currPriceList={}
-        
+        self.getPositions()
         
         
 
@@ -137,7 +137,130 @@ class IGTradeBrokerNDMulti (object):
     def getTradePrice(self):
         return self.currPrice
 
-    def placePosition(self, isBuy, stock):
+    def deletePositions(self):
+        urlPosition="https://demo-api.ig.com/gateway/deal/positions/otc"
+
+
+        for position in self.positions:
+            headers = { "Content-Type": "application/json; charset=utf-8",
+            "Accept": "application/json; charset=utf-8",
+            "X-IG-API-KEY": self.apiKey,
+            "Version": "2",
+            "X-SECURITY-TOKEN": self.token,
+            "CST": self.CST
+            }
+
+
+                
+            data = {
+            "currencyCode":"SGD",
+            "direction":position,
+            "epic": stock,
+            "expiry": "-",
+            "forceOpen":"false",
+            "guaranteedStop":"false",
+            "level":None,
+            "limitDistance":None,
+            "limitLevel":None,
+            "orderType":"MARKET",
+            "quoteId":None,
+            "size": "1",
+            "stopDistance":None,
+            "stopLevel":None,
+            "timeInForce":"EXECUTE_AND_ELIMINATE",
+            "trailingStop":"false",
+            "trailingStopIncrement":None
+            }
+
+            payload=json.dumps(data)
+
+            r1 = requests.post(urlPosition, data=payload, headers = headers)
+
+            print(r1.status_code)
+            print (r1.headers)
+            print (r1.text) 
+        
+    def getPositions(self):
+        urlPosition="https://demo-api.ig.com/gateway/deal/positions"
+
+
+        headers = { "Content-Type": "application/json; charset=utf-8",
+        "Accept": "application/json; charset=utf-8",
+        "X-IG-API-KEY": self.apiKey,
+        "Version": "2",
+        "X-SECURITY-TOKEN": self.token,
+        "CST": self.CST
+        }
+
+       
+        #payload=json.dumps(data)
+
+        r1 = requests.get(urlPosition, headers = headers)
+        
+        print(r1.status_code)
+        print (r1.headers)
+        print (r1.text) 
+        json_data = json.loads(r1.text)
+        positions = json_data['positions']
+        self.positions = []
+        for position in positions:
+            epic = position['position']
+            id = epic['dealId']
+            dir = epic['direction']
+            market=position['market']
+            stock = market['epic']
+            print(id)
+            print (dir)
+            print(stock)
+            #self.positions.append(id)
+            if str(dir)=="BUY":
+                self.deletePosition(False, stock, id)
+            else:
+                self.deletePosition(True, stock, id)
+
+     
+    def deletePosition(self, isBuy, stock, dealId):
+        urlPosition="https://demo-api.ig.com/gateway/deal/positions/otc"
+
+
+        headers = { "Content-Type": "application/json; charset=utf-8",
+        "Accept": "application/json; charset=utf-8",
+        "X-IG-API-KEY": self.apiKey,
+        "Version": "1",
+        "X-SECURITY-TOKEN": self.token,
+        "CST": self.CST,
+        "_method":"DELETE"
+        }
+
+        if isBuy is True:
+            position = "BUY"
+            
+        else:
+            position = "SELL"
+            
+        data = {
+
+            "dealId": dealId,
+            "epic": None,
+            "expiry": None,
+            "direction": position,
+            "size": "1",
+            "level": None,
+            "orderType": "MARKET",
+            "timeInForce": None,
+            "quoteId": None
+        }
+
+        payload=json.dumps(data)
+        print(payload)    
+        r1 = requests.post(urlPosition, data=payload, headers = headers)
+        
+
+        print(r1.status_code)
+        print (r1.headers)
+        print (r1.text) 
+        
+    def placePosition(self, isBuy, stock, dealId):
         urlPosition="https://demo-api.ig.com/gateway/deal/positions/otc"
 
 
@@ -173,11 +296,13 @@ class IGTradeBrokerNDMulti (object):
         "timeInForce":"EXECUTE_AND_ELIMINATE",
         "trailingStop":"false",
         "trailingStopIncrement":None
+
         }
 
         payload=json.dumps(data)
 
         r1 = requests.post(urlPosition, data=payload, headers = headers)
+        
 
         print(r1.status_code)
         print (r1.headers)
@@ -220,7 +345,7 @@ class IGTradeBrokerNDMulti (object):
                     self.totalMoney = self.totalMoney - self.boughtLots*bidPrice
                     self.trades = self.trades + 1
                     #annoVec.append('buy ' + str(bidPrice))
-                    self.placePosition(True, stock)
+                    self.placePosition(True, stock, "")
                     #annoVec.append('b')
                     anno = True                    
                     entryPrice=bidPrice
@@ -242,7 +367,7 @@ class IGTradeBrokerNDMulti (object):
                     #annoVec.append('s')
                     anno = True
                     entryPrice=bidPrice
-                    self.placePosition(False, stock)
+                    self.placePosition(False, stock, "")
                     entry=StockEntry()
                     entry.name=stock
                     entry.price=bidPrice
