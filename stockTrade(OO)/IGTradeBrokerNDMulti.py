@@ -404,6 +404,8 @@ class IGTradeBrokerNDMulti (object):
                 #priceVec.append(bidPrice)
                 print('Total trades {0} Time: {1}'.format(self.trades, datetime.datetime.utcnow()))
                 #lastPrice=bidPrice
+                if timeCheck.isClear():
+                    self.clearPositions()
             time.sleep(self.delay)
             
         #self.display.display(self.EquityVec, annoVec, priceVec, self.algorithm.getRSIVec(), self.algorithm.getStdVec())
