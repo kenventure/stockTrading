@@ -44,7 +44,7 @@ class IGTradeBrokerNDMulti (object):
         self.mutex = Lock()
         self.login()
         self.currPriceList={}
-        self.getPositions()
+        self.clearPositions()
         
         
 
@@ -180,7 +180,7 @@ class IGTradeBrokerNDMulti (object):
             print (r1.headers)
             print (r1.text) 
         
-    def getPositions(self):
+    def clearPositions(self):
         urlPosition="https://demo-api.ig.com/gateway/deal/positions"
 
 
